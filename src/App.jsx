@@ -1,18 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Lobby from "./components/lobby";
 import GameBoard from "./components/GameBoard";
+import { authenticate } from "./api/nakamaClient";
 
 export default function App() {
-  // simple state to toggle views — we'll wire this to Nakama in later steps
-  const [matchId, setMatchId] = React.useState(null);
+  const [session, setSession] = useState(null);
+  const [matchId, setMatchId] = useState(null);
 
-  return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
-      {!matchId ? (
-        <Lobby onJoinMatch={(id) => setMatchId(id)} />
-      ) : (
-        <GameBoard matchId={matchId} onLeave={() => setMatchId(null)} />
-      )}
-    </div>
+  useEffect(() => {
+    (async () => {
+      const s = await authenticate();
+      setSession(s);
+    })();
+  }, []);
+
+  if (!session) return <div>Loading…</div>;
+
+  return !matchId ? (
+    <Lobby
+      session={session}
+      onSessionUpdate={(s) => setSession(s)}
+      onJoinMatch={(id) => setMatchId(id)}
+    />
+  ) : (
+    <GameBoard
+      matchId={matchId}
+      session={session}
+      onLeave={() => setMatchId(null)}
+    />
   );
 }

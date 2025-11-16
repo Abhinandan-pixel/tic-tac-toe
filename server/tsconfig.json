@@ -1,0 +1,29 @@
+// {
+//   "files": [
+//     "./main.ts"
+//   ],
+//   "compilerOptions": {
+//     "target": "es5",
+//     "lib": ["es2015"],
+//     "types": ["nakama-runtime"],
+//     "outFile": "./build/index.js",
+//     "strict": true,
+//     "esModuleInterop": true,
+//     "skipLibCheck": true,
+//     "forceConsistentCasingInFileNames": true,
+//     "module": "amd"
+//   },
+// }
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es5",              // REQUIRED for Array.fill, async, etc.
+    "lib": ["es2017"],               // ensures strict array/string support
+    "outDir": "./build",             // compile to folder, not one file
+    "types": ["nakama-runtime"],     // Nakama runtime typing
+    "esModuleInterop": true,
+    "skipLibCheck": false,
+    "forceConsistentCasingInFileNames": true
+  },
+  "files": ["./main.ts"],
+}

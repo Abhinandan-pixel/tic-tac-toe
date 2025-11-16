@@ -1,0 +1,15 @@
+{
+  "name": "nakama-server",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "nakama-runtime": "github:heroiclabs/nakama-common",
+    "protobufjs": "^7.5.4"
+  }
+}
