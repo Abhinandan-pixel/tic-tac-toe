@@ -1,0 +1,170 @@
+/* Background and centering */
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0b121a;
+  font-family: sans-serif;
+  color: white;
+  box-sizing: border-box;
+}
+
+/* Card box */
+.card {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Top bar for username card */
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  font-weight: 500;
+}
+
+.close {
+  font-size: 20px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+/* Input styling */
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 4px;
+  border: 1px solid #2e3d4b;
+  background: #16202a;
+  color: #ddd;
+  text-align: center;
+}
+
+.input::placeholder {
+  text-align: center;
+  color: #67788a;
+}
+
+.continueBtn {
+  align-self: flex-end;
+  padding: 8px 18px;
+  border-radius: 18px; /* consistent pill radius */
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+  width: auto; /* not full width */
+  color: #ffffff; /* white text */
+  box-shadow: 0 6px 18px rgba(13, 120, 101, 0.12);
+}
+
+/* When nickname is empty (disabled) */
+.disabledBtn {
+  background: #117a66; /* muted green */
+  opacity: 0.45;
+  pointer-events: none;
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* When nickname is filled (active) */
+.activeBtn {
+  background: linear-gradient(
+    180deg,
+    #19c7a0 0%,
+    #14ae84 100%
+  ); /* brighter teal/green */
+  opacity: 1;
+}
+
+.continueBtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px rgba(13, 120, 101, 0.12);
+}
+
+/* Finding screen */
+.findTitle {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  text-align: center;
+  opacity: 0.6;
+  margin-top: 0;
+}
+
+/* Cancel button */
+.cancelBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: 1px solid #666;
+  background: transparent;
+  color: #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 360px;
+    padding: 16px;
+    box-sizing: border-box;
+    gap: 10px;
+    border-radius: 8px;
+    background: rgba(6, 10, 12, 0.45);
+    backdrop-filter: blur(6px);
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .cancelBtn {
+    margin-top: 16px;
+    padding: 8px 14px;
+    width: 120px;
+    align-self: center;
+  }
+
+  /* Make inputs and the Continue button easier to tap on small screens */
+  .input {
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .continueBtn {
+    padding: 10px 16px;
+    border-radius: 18px; /* keep same radius as base to avoid jump */
+    font-size: 15px;
+    align-self: flex-end;
+    box-shadow: none;
+  }
+}
+
+/* Medium devices tweaks */
+@media (min-width: 481px) and (max-width: 768px) {
+  .card {
+    width: 360px;
+  }
+}

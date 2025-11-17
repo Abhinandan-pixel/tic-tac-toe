@@ -1,0 +1,144 @@
+:root {
+  --board-bg: #17bfb0;
+  --line-color: rgba(0, 0, 0, 0.12);
+  --x-color: #1f2b2b;
+  --o-color: #ffffff;
+}
+
+.wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--board-bg);
+}
+
+.card {
+  max-width: 520px;
+  padding: 22px;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.players {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 24px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 6px;
+}
+
+.turn {
+  width: 100%;
+  text-align: center;
+  font-size: 22px;
+  color: rgba(0, 0, 0, 0.18);
+  margin: 8px 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.board {
+  --cell-size: 96px;
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell-size));
+  grid-template-rows: repeat(3, var(--cell-size));
+  gap: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cell.disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 6px solid transparent;
+  box-sizing: border-box;
+}
+
+.cell:not(:nth-child(3n))::after {
+  border-right-color: var(--line-color);
+}
+.cell:nth-child(-n + 6)::after {
+  border-bottom-color: var(--line-color);
+}
+
+.x {
+  color: var(--x-color);
+  font-size: calc(var(--cell-size) * 0.5);
+  font-weight: 800;
+}
+
+.o {
+  width: calc(var(--cell-size) * 0.56);
+  height: calc(var(--cell-size) * 0.56);
+  border-radius: 50%;
+  border: 8px solid var(--o-color);
+  box-sizing: border-box;
+}
+
+.controls {
+  margin-top: 18px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.leaveBtn {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  color: rgba(0, 0, 0, 0.45);
+  padding: 8px 18px;
+  border-radius: 22px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+  }
+  .board {
+    --cell-size: 72px;
+    gap: 10px;
+    padding: 12px;
+  }
+  .turn {
+    font-size: 18px;
+  }
+  .players {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 769px) {
+  .board {
+    --cell-size: 120px;
+    gap: 18px;
+  }
+}

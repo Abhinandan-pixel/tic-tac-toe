@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { socket } from "../api/nakamaClient";
 import { OP_MOVE } from "./constants";
+import styles from "@styles/Gameboard.module.css";
 
 export default function GameBoard({ matchId, session, onLeave }) {
   const [state, setState] = useState(null);
@@ -20,10 +21,14 @@ export default function GameBoard({ matchId, session, onLeave }) {
         }
 
         if (payload.type === "game_over") {
-          setState((s) => ({ ...s, winner: payload.winner }));
+          setState((s) => ({
+            ...s,
+            winner: payload.winner,
+            board: payload.board,
+          }));
         }
-      } catch (e) {
-        console.warn("Failed to parse match message", e);
+      } catch (err) {
+        console.warn("Failed to parse match message", err);
       }
     };
 
@@ -34,17 +39,18 @@ export default function GameBoard({ matchId, session, onLeave }) {
     };
   }, [matchId]);
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
-
   const mySymbol = state?.players?.[session.user_id]?.symbol ?? null;
 
   const renderCell = (i) => {
     const cellUserId = state?.board?.[i] ?? "";
-    if (!cellUserId) return "";
+    if (!cellUserId) return null;
     const p = state.players?.[cellUserId];
-    return p ? p.symbol : "?";
+    if (!p) return null;
+    return p.symbol === "X" ? (
+      <div className={styles.x}>X</div>
+    ) : (
+      <div className={styles.o} />
+    );
   };
 
   const sendMove = (index) => {
@@ -56,57 +62,111 @@ export default function GameBoard({ matchId, session, onLeave }) {
     socket.sendMatchState(matchId, OP_MOVE, bytes);
   };
 
-  return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
-      <h2>Game</h2>
-      <p>Match ID: {matchId}</p>
-      <p>
-        You: {session.username || "You"} {mySymbol ? `(${mySymbol})` : ""}
-      </p>
-      <p>
-        Next Turn:{" "}
-        {state?.nextTurn
-          ? state.players?.[state.nextTurn]?.username || state.nextTurn
-          : "—"}
-      </p>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 96px)",
-          gap: 8,
-          marginTop: 12,
-        }}
-      >
-        {Array.from({ length: 9 }).map((_, i) => (
-          <div
-            key={i}
-            onClick={() => sendMove(i)}
-            style={{
-              width: 96,
-              height: 96,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 32,
-              background: "#f5f5f5",
-              borderRadius: 8,
-              cursor:
-                state?.nextTurn === session.user_id &&
-                state?.board?.[i] === "" &&
-                !state.winner
-                  ? "pointer"
-                  : "not-allowed",
-              userSelect: "none",
-            }}
-          >
-            {renderCell(i)}
-          </div>
-        ))}
-      </div>
+  const myName = session?.username || "You";
+  const opponent = (() => {
+    if (!state?.players) return null;
+    const ids = Object.keys(state.players).filter(
+      (id) => id !== session.user_id
+    );
+    return ids.length ? state.players[ids[0]] : null;
+  })();
 
-      <div style={{ marginTop: 12 }}>
-        <div style={{ marginTop: 8 }}>
-          <button onClick={onLeave}>Leave</button>
+  const handleLeave = async () => {
+    if (matchId) {
+      try {
+        await socket.leaveMatch(matchId);
+      } catch (err) {
+        console.log("Unable to leave the match:", err);
+      }
+    }
+    onLeave();
+  };
+
+  const hasMatchEnded = () => {
+    const hasEnded = state && !state.winner;
+    return hasEnded;
+  };
+
+  const handleMatchWinner = () => {
+    if (state && state.winner === session.user_id) {
+      return "You won";
+    } else if (state && state.winner === "draw") {
+      return "Draw";
+    } else if (state && state.winner !== session.user_id) {
+      return "You lost";
+    }
+  };
+
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.card}>
+        <div className={styles.players}>
+          <div>
+            {myName}{" "}
+            <span style={{ fontWeight: 400 }}>({mySymbol || "-"})</span>
+          </div>
+          <div>{opponent?.username || "Waiting"}</div>
+        </div>
+
+        {hasMatchEnded() && (
+          <div className={styles.turn}>
+            {state?.nextTurn &&
+              (state.players[state.nextTurn]?.symbol === "X" ? (
+                <div
+                  className="Xturn"
+                  style={{
+                    width: 26,
+                    height: 55,
+                    fontSize: 35,
+                  }}
+                >
+                  X
+                </div>
+              ) : (
+                <div
+                  className="dot"
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: "50%",
+                    border: "6px solid rgba(0,0,0,0.1)",
+                  }}
+                />
+              ))}
+            <div>Turn</div>
+          </div>
+        )}
+        {!hasMatchEnded() && (
+          <div className={styles.turn}>{handleMatchWinner()}</div>
+        )}
+
+        <div className={styles.board}>
+          {Array.from({ length: 9 }).map((_, i) => {
+            const isClickable =
+              state &&
+              !state.winner &&
+              state.nextTurn === session.user_id &&
+              state.board?.[i] === "";
+            return (
+              <div
+                key={i}
+                className={`${styles.cell} ${
+                  isClickable ? "" : styles.disabled
+                }`}
+                onClick={() => isClickable && sendMove(i)}
+                role="button"
+                aria-label={`cell-${i}`}
+              >
+                {renderCell(i)}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className={styles.controls}>
+          <button className={styles.leaveBtn} onClick={handleLeave}>
+            {hasMatchEnded() ? "Leave" : "Play Again"}
+          </button>
         </div>
       </div>
     </div>

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   updateUsername,
   connectSocket,
   findOrCreateMatch,
   socket,
 } from "../api/nakamaClient";
+import styles from "@styles/Lobby.module.css";
 
 const hasSavedUsername = () => !!localStorage.getItem("username");
 
@@ -15,16 +16,24 @@ export default function Lobby({ session, onSessionUpdate, onJoinMatch }) {
     hasSavedUsername() ? "finding" : "ask"
   );
   const [working, setWorking] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const matchMakingTicket = useRef(null);
 
   useEffect(() => {
     if (phase !== "finding") return;
     let mounted = true;
+    setTimeElapsed(0);
+    const interval = setInterval(() => {
+      setTimeElapsed((s) => s + 1);
+    }, 1000);
 
+    console.log(matchMakingTicket.current);
     (async () => {
       try {
         setWorking(true);
         await connectSocket(session);
-        await findOrCreateMatch();
+        matchMakingTicket.current = await findOrCreateMatch();
       } catch (err) {
         console.error("Matchmaking start failed", err);
         if (mounted) setPhase("ask");
@@ -38,13 +47,21 @@ export default function Lobby({ session, onSessionUpdate, onJoinMatch }) {
       if (matched && matched.match_id) {
         onJoinMatch(matched.match_id);
       }
+      clearInterval(interval);
     };
 
     return () => {
       mounted = false;
       socket.onmatchmakermatched = null;
+      clearInterval(interval);
     };
   }, [phase, session, onJoinMatch]);
+
+  useEffect(() => {
+    if (timeElapsed > 60) {
+      handleCancel();
+    }
+  }, [timeElapsed]);
 
   const handleSetUsername = async () => {
     const name = (username || "").trim();
@@ -63,42 +80,60 @@ export default function Lobby({ session, onSessionUpdate, onJoinMatch }) {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    setCanceling(true);
+    if (!matchMakingTicket.current) return;
     try {
-      socket.removeMatchmaker();
-    } catch (_) {}
-    setPhase("ask");
+      await socket.removeMatchmaker(matchMakingTicket.current);
+    } catch (e) {
+      console.log("failed to cancel match making:", e);
+    } finally {
+      setCanceling(false);
+      setPhase("ask");
+    }
   };
 
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
+    <div className={styles.container}>
       {phase === "ask" ? (
-        <div>
-          <h2>Who are you?</h2>
+        <div className={styles.card}>
+          <div className={styles.topBar}>
+            <h3 className={styles.title}>Who are you?</h3>
+          </div>
+
           <input
+            className={styles.input}
+            placeholder="Nickname"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter username"
             disabled={working}
-            style={{ padding: 8, width: "100%", boxSizing: "border-box" }}
           />
+
           <button
+            className={`${styles.continueBtn} ${
+              username.trim() ? styles.activeBtn : styles.disabledBtn
+            }`}
+            disabled={!username.trim()}
             onClick={handleSetUsername}
-            disabled={working || !username.trim()}
-            style={{ marginTop: 8 }}
           >
             Continue
           </button>
         </div>
       ) : (
-        <div>
-          <h2>Finding a random player…</h2>
-          <p>Searching for an opponent. Please wait...</p>
-          <p style={{ color: "#888" }}>
-            Logged in as: {localStorage.getItem("username") || session.username}
+        <div className={styles.card}>
+          <h2 className={styles.findTitle}>Finding a random player…</h2>
+          <p className={styles.subtitle}>
+            {timeElapsed < 60000
+              ? `Searching... Time Elapsed ${timeElapsed} seconds`
+              : "Taking too long. Disconnecting..."}
           </p>
-          <button onClick={handleCancel} style={{ marginTop: 12 }}>
-            Cancel
+          <button
+            className={styles.cancelBtn}
+            onClick={handleCancel}
+            disabled={canceling}
+            aria-busy={canceling}
+          >
+            {canceling ? "Cancelling…" : "Cancel"}
           </button>
         </div>
       )}

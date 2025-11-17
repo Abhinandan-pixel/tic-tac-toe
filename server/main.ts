@@ -43,11 +43,14 @@ const matchJoin: nkruntime.MatchJoinFunction = (ctx, logger, nk, dispatcher, tic
 
 const matchLeave: nkruntime.MatchLeaveFunction = (ctx, logger, nk, dispatcher, tick, state, presences) => {
     presences.forEach((p: nkruntime.Presence) => {
-        delete state.players[p.userId];
         state.order = state.order.filter((id: string) => id !== p.userId);
     });
 
-    if (state.order.length === 1) { state.winner = state.order[0]; state.nextTurn = ""; };
+    if (state.order.length === 1) {
+        if (state.winner === "")
+            state.winner = state.order[0];
+        state.nextTurn = "";
+    };
 
     dispatcher.broadcastMessage(1, JSON.stringify({ type: "state", state }));
 
