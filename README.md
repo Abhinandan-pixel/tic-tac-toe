@@ -1,16 +1,154 @@
-# React + Vite
+🎮 Tic-Tac-Toe — Nakama Server-Authoritative Multiplayer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time, server-authoritative multiplayer Tic-Tac-Toe game built using:
 
-Currently, two official plugins are available:
+- React (Vite)
+- Nakama (Matchmaker + Authoritative Match Loop)
+- Docker Compose
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project implements username login, matchmaking, real-time board updates, turn assignment, win/draw logic, disconnection handling, and “Play Again” flow — all according to the specifications provided in the assignment document.
 
-## React Compiler
+🚀 Features
+🔐 Authentication
+- Device ID–based auth
+- Username entry screen with validation
+- Username persists across sessions
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+🎯 Matchmaking
 
-## Expanding the ESLint configuration
+- Auto-match 2 players
+- Handles tickets, match_create, and server-authoritative match joining
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+🧠 Server Authoritative Match
+* Server owns and validates:
+  - X/O symbol assignment
+  - Turn order
+  - Illegal move prevention
+  - Win/draw detection
+  - Disconnect winner logic
+
+⚡ Real-Time Gameplay
+- Uses WebSocket match data
+- Board updates instantly for both players
+- Opponent leaving triggers win state
+
+🔁 Play Again Flow
+- After match end → players can play again
+- Server resets state properly
+
+🎨 Clean UI
+- CSS Modules
+- Responsive board
+
+▶️ Running Locally
+
+1️⃣ Start Nakama Server
+
+From Server directory:
+
+`docker compose up -d`
+
+This launches:
+- Nakama server
+- Postgres
+- Auto-loads your compiled server module (server/build)
+
+2️⃣ Build Server Module (after any code changes)
+```
+cd server
+npm install
+npm run build
+docker compose restart nakama
+```
+
+3️⃣ Start Frontend
+```
+cd client
+npm install
+npm run dev
+```
+
+Frontend will run at:
+
+http://localhost:5173
+
+🎮 Gameplay Flow (End-to-End)
+1. Username Screen
+
+User enters a username → validated → stored.
+
+2. Matchmaking Screen
+
+Nakama matchmaker searches for opponent
+(also includes 60-second timeout + cancel flow).
+
+3. Match Found
+
+- Backend creates a server-authoritative match
+- Players are assigned X and O
+- Client calls joinMatch(matchId)
+
+4. Gameplay (Real-Time)
+
+- Player makes a move → client sends:
+```
+{ "type": "move", "index": 3 }
+```
+- Server validates move → updates state → broadcasts
+- Board updates instantly for both players
+
+5. End of Match
+
+Win/draw logic fully server-side.
+
+6. Play Again
+
+Players can restart a new session inside the match.
+
+⚙️ Server Authoritative Logic
+
+The authoritative match module includes:
+
+- matchInit — initializes board + player state
+
+- matchJoin — assigns X/O
+
+- matchLoop — processes move opcodes
+
+- matchLeave — opponent auto-win
+
+- Full board/turn validation
+
+- Broadcasts state and game_over messages
+
+All security-sensitive gameplay happens only on the server.
+
+🤝 Disconnect Handling
+
+If a player quits, loses connection, or closes the tab:
+
+- Nakama triggers matchLeave
+- Remaining player becomes winner
+- Board state remains preserved
+
+🧪 Tested Scenarios
+
+- Valid move (correct turn)
+- Invalid move (wrong turn)
+- Invalid move (occupied cell)
+- Win detection
+- Draw detection
+- Opponent disconnect
+- Game resets with Play Again
+- Matchmaking cancel
+- Username persists across reloads
+
+🏁 Status
+
+✔ Fully working locally
+
+✔ Server authoritative
+
+✔ UI implemented
+
+✔ Clean architecture
