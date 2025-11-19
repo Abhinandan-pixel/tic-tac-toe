@@ -9,6 +9,7 @@ A real-time, server-authoritative multiplayer Tic-Tac-Toe game built using:
 This project implements username login, matchmaking, real-time board updates, turn assignment, win/draw logic, disconnection handling, and “Play Again” flow — all according to the specifications provided in the assignment document.
 
 🚀 Features
+
 🔐 Authentication
 - Device ID–based auth
 - Username entry screen with validation
@@ -45,8 +46,10 @@ This project implements username login, matchmaking, real-time board updates, tu
 1️⃣ Start Nakama Server
 
 From Server directory:
-
-`docker compose up -d`
+```
+cd server
+docker compose up -d
+```
 
 This launches:
 - Nakama server
