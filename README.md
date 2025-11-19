@@ -56,15 +56,7 @@ This launches:
 - Postgres
 - Auto-loads your compiled server module (server/build)
 
-2️⃣ Build Server Module (after any code changes)
-```
-cd server
-npm install
-npm run build
-docker compose restart nakama
-```
-
-3️⃣ Start Frontend
+2️⃣ Start Frontend
 ```
 cd client
 npm install
