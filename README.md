@@ -8,9 +8,24 @@ A real-time, server-authoritative multiplayer Tic-Tac-Toe game built using:
 
 This project implements username login, matchmaking, real-time board updates, turn assignment, win/draw logic, disconnection handling, and “Play Again” flow — all according to the specifications provided in the assignment document.
 
+## 📸 Screenshots
+
+### Username Screen
+
+<img src="./screenshots/login.PNG" width="300" style="border: 2px solid #999; border-radius: 6px;"/>
+
+### Matchmaking Screen
+
+<img src="./screenshots/matchMakingScreen.PNG" width="300" style="border: 2px solid #999; border-radius: 6px;"/>
+
+### Gameplay
+
+<img src="./screenshots/gameboard.PNG" width="300" style="border: 2px solid #999; border-radius: 6px;"/>
+
 🚀 Features
 
 🔐 Authentication
+
 - Device ID–based auth
 - Username entry screen with validation
 - Username persists across sessions
@@ -21,7 +36,8 @@ This project implements username login, matchmaking, real-time board updates, tu
 - Handles tickets, match_create, and server-authoritative match joining
 
 🧠 Server Authoritative Match
-* Server owns and validates:
+
+- Server owns and validates:
   - X/O symbol assignment
   - Turn order
   - Illegal move prevention
@@ -29,15 +45,18 @@ This project implements username login, matchmaking, real-time board updates, tu
   - Disconnect winner logic
 
 ⚡ Real-Time Gameplay
+
 - Uses WebSocket match data
 - Board updates instantly for both players
 - Opponent leaving triggers win state
 
 🔁 Play Again Flow
+
 - After match end → players can play again
 - Server resets state properly
 
 🎨 Clean UI
+
 - CSS Modules
 - Responsive board
 
@@ -46,17 +65,20 @@ This project implements username login, matchmaking, real-time board updates, tu
 1️⃣ Start Nakama Server
 
 From Server directory:
+
 ```
 cd server
 docker compose up -d
 ```
 
 This launches:
+
 - Nakama server
 - Postgres
 - Auto-loads your compiled server module (server/build)
 
 2️⃣ Start Frontend
+
 ```
 cd client
 npm install
@@ -68,6 +90,7 @@ Frontend will run at:
 http://localhost:5173
 
 🎮 Gameplay Flow (End-to-End)
+
 1. Username Screen
 
 User enters a username → validated → stored.
@@ -86,9 +109,11 @@ Nakama matchmaker searches for opponent
 4. Gameplay (Real-Time)
 
 - Player makes a move → client sends:
+
 ```
 { "type": "move", "index": 3 }
 ```
+
 - Server validates move → updates state → broadcasts
 - Board updates instantly for both players
 
